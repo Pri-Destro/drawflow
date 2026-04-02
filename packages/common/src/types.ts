@@ -27,3 +27,46 @@ export type User = {
     name : string,
     email : string
 }
+
+export interface Room {
+  id: number;
+  name: string;
+}
+
+export type RoomParticipants = {
+  userId: string;
+  userName: string;
+};
+
+export type Element = {
+    id?: string;
+    type: "rect" | "circle" | "ellipse" | "arrow" | "line";
+    x: number;
+    y: number;
+    width?: number;
+    height?: number;
+    points?: number[];
+    style?: {
+        strokeColor?: string;
+        backgroundColor?: string;
+        strokeWidth?: number;
+        opacity?: number;
+    };
+};
+
+export enum WsDataType {
+  JOIN = "JOIN",
+  LEAVE = "LEAVE",
+  USER_JOINED = "USER_JOINED",
+  USER_LEFT = "USER_LEFT",
+  DRAW = "DRAW",
+  ERASER = "ERASER",
+  UPDATE = "UPDATE",
+  EXISTING_PARTICIPANTS = "EXISTING_PARTICIPANTS",
+  CLOSE_ROOM = "CLOSE_ROOM",
+  CONNECTION_READY = "CONNECTION_READY",
+  EXISTING_SHAPES = "EXISTING_SHAPES",
+  STREAM_SHAPE = "STREAM_SHAPE",
+  STREAM_UPDATE = "STREAM_UPDATE",
+  CURSOR_MOVE = "CURSOR_MOVE",
+}

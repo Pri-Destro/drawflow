@@ -1,4 +1,4 @@
-import { AuthPage } from "../../components/AuthPage";
+import { AuthPage } from "../../../components/AuthPage";
 import { getUser } from "@/app/lib/getUser";
 import {redirect} from "next/navigation"
 
@@ -6,7 +6,9 @@ import {redirect} from "next/navigation"
     
     const user = await getUser()
     
-    if(user != null) redirect('/dashboard')
+    if(user != null) {
+        redirect('/dashboard')
+    }
 
     return(
         <div>

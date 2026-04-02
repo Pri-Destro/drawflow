@@ -1,4 +1,4 @@
-import { AuthPage } from "../../components/AuthPage";
+import { AuthPage } from "../../../components/AuthPage";
 import { getUser } from "@/app/lib/getUser";
 import {redirect} from "next/navigation"
 

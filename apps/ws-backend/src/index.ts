@@ -16,16 +16,10 @@ const users : Users[] = [];
 
 function checkUser(token : string) : string | null{
   try{
-      const decoded = jwt.verify(token,JWT_SECRET) as {
-        email : string,
-        name : string
+      const decoded = jwt.verify(token,JWT_SECRET) as JwtPayload
 
-      }
-
-      if(!decoded || !(decoded as JwtPayload).email){
-        return null
-      }
-      const userId = (decoded as JwtPayload).email
+      if(!decoded || !decoded.userId) return null;
+      const userId = decoded.userId
       
       return userId
 
@@ -44,7 +38,7 @@ wss.on('connection', function connection(ws,request) {
 
   const queryParams = new URLSearchParams(url.split('?')[1]);
   const token = queryParams.get('token') || "";
-
+  // console.log("this is token", token)
   // verifying user 
   const userId = checkUser(token);
 
@@ -65,8 +59,10 @@ wss.on('connection', function connection(ws,request) {
     
     // ws on open
     if(parsedData.type === "join_room"){
+      console.log("join room requested")
       const user = users.find(x => x.ws === ws)   // user whose ws cnx is curernt ws cnx
       user?.rooms.push(parsedData.roomId)
+      console.log("roomid pushed in user rooms")
     }
 
     if(parsedData.type == "leave_room"){
@@ -101,8 +97,8 @@ wss.on('connection', function connection(ws,request) {
       })
     }
 
-    console.log("saving to db from ws-backend")
     if(parsedData.type == "element"){            
+      console.log("saving element to db from ws-backend")
       // data will be like {type: "element", roomId: "123", element: {type: "rect", x: 10, y: 20, width: 100, height: 50, style: {...}}}
       const roomId = parsedData.roomId;
       const { type, x, y, width, height, angle, style, data } = parsedData.element;

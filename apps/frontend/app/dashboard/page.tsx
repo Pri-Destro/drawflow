@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import DashboardClient from "../components/DashboardClient";
+import DashboardClient from "../../components/DashboardClient";
 import { cookies } from "next/headers"; 
 import { HTTP_BACKEND } from "@/config";
 import { getUser } from "../lib/getUser";

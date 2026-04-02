@@ -11,7 +11,7 @@ export async function getUser() : Promise<User | null> {
 
 
     if (!token) {
-        throw new Error
+      return null;
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as {

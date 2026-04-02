@@ -25,7 +25,7 @@ export default function RoomCanvas({roomId } : {roomId : string}){
                 
                 const token = res.data.token
                 const ws = new WebSocket(`${WS_URL}?token=${token}`)
-
+                // console.log(token);
                 ws.onopen = () => {
                 console.log(" WebSocket connected");
                 setSocket(ws)
@@ -39,12 +39,12 @@ export default function RoomCanvas({roomId } : {roomId : string}){
                 }
 
                 ws.onerror = (error) => {
-                console.error("❌ WebSocket error:", error);
+                console.error(" WebSocket error:", error);
                 setConnectionStatus("error")
                 }
 
                 ws.onclose = (event) => {
-                console.warn("⚠️ WebSocket closed:", event.code, event.reason);
+                console.warn(" WebSocket closed:", event.code, event.reason);
                 setConnectionStatus("error")
                 }
 
