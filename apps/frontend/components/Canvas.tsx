@@ -5,6 +5,7 @@ import axios, { AxiosError } from "axios";
 import { Button } from "@repo/ui/button";
 import { HTTP_BACKEND } from "@/config";
 import { Element } from "@repo/common/types";
+import Link from "next/link";
 
 
 const CANVAS_WIDTH = 1450;
@@ -25,21 +26,26 @@ export default function Canvas({roomId, socket} : {roomId : string, socket : Web
         const angle = Math.atan2(y2 - y1, x2 - x1);
         const headLength = 10;
 
+        // normal line
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.stroke();
 
+        // arrow head
         ctx.beginPath();
         ctx.moveTo(x2, y2);
+        // left side of arrow head
         ctx.lineTo(
             x2 - headLength * Math.cos(angle - Math.PI / 6),
             y2 - headLength * Math.sin(angle - Math.PI / 6)
         );
+        // right side of arrow head
         ctx.lineTo(
             x2 - headLength * Math.cos(angle + Math.PI / 6),
             y2 - headLength * Math.sin(angle + Math.PI / 6)
         );
+        // fill triagnle
         ctx.closePath();
         ctx.fillStyle = ctx.strokeStyle;
         ctx.fill();
@@ -131,10 +137,12 @@ export default function Canvas({roomId, socket} : {roomId : string, socket : Web
         }
     }, [drawShape]);
 
+    // changing tools
     useEffect(() => {
         currentToolRef.current = currentTool as Element["type"];
     }, [currentTool]);
 
+    // fetching old elements and listening for new
     useEffect(() => {
         let mounted = true;
 
@@ -175,6 +183,13 @@ export default function Canvas({roomId, socket} : {roomId : string, socket : Web
 
         const onMessage = (event: MessageEvent) => {
             const message = JSON.parse(event.data);
+            if (message.type === "clear") {
+                shapesRef.current = [];
+                previewShapeRef.current = null;
+                redraw();
+                return;
+            }
+            
             if (message.type !== "element") return;
 
             const shape = normalizeElement(message.element);
@@ -195,10 +210,12 @@ export default function Canvas({roomId, socket} : {roomId : string, socket : Web
         };
     }, [roomId, socket, redraw]);
 
+    // coordinates calculating and mouse event handlers
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
+        
+        // screen coordinates to canvas coordinates
         const getPos = (clientX: number, clientY: number) => {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -249,6 +266,7 @@ export default function Canvas({roomId, socket} : {roomId : string, socket : Web
             previewShapeRef.current = null;
         };
 
+        // live preview
         const onMouseMove = (e: MouseEvent) => {
             if (!isDrawingRef.current || !startPointRef.current) return;
             const pos = getPos(e.clientX, e.clientY);
@@ -305,10 +323,17 @@ export default function Canvas({roomId, socket} : {roomId : string, socket : Web
     }, [roomId, socket, redraw]);
 
     const handleClear = () => {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                type: "clear",
+                roomId
+            }));
+        }
         shapesRef.current = [];
         previewShapeRef.current = null;
         redraw();
     };
+    
 
     return (
         <div className="">
@@ -359,6 +384,16 @@ export default function Canvas({roomId, socket} : {roomId : string, socket : Web
                     onClick={() => setCurrentTool("line")}
                 > 
                     Line 
+                </Button>
+                
+                <Button 
+                    className={currentTool === "line" ? "bg-blue-500 text-white" : ""}
+                    variant={"outline"}
+                    // onClick={() => }
+                > 
+                <Link href={"/dashboard"}>
+                    Back 
+                </Link>
                 </Button>
             </div>
 

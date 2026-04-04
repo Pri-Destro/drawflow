@@ -8,8 +8,8 @@ const wss = new WebSocketServer({ port: 8080 });
 
 interface Users{
   ws : WebSocket,
-  rooms : String[],
-  userId : String
+  rooms : string[],
+  userId : string
 }
 
 const users : Users[] = [];
@@ -62,6 +62,30 @@ wss.on('connection', function connection(ws,request) {
       console.log("join room requested")
       const user = users.find(x => x.ws === ws)   // user whose ws cnx is curernt ws cnx
       user?.rooms.push(parsedData.roomId)
+
+      const room = await prismaClient.room.findUnique({
+        where: { id: parsedData.roomId }
+      });
+
+      if (!room) return;
+
+      if (room.adminId !== userId) {
+        await prismaClient.roomParticipant.upsert({
+          where: {
+            userId_roomId: {
+              userId,
+              roomId : parsedData.roomId
+            }
+          },
+          update: {},
+          create: {
+            userId,
+            roomId: parsedData.roomId
+          }
+        });
+      }
+
+  console.log("User added as participant in DB");
       console.log("roomid pushed in user rooms")
     }
 
@@ -142,6 +166,25 @@ wss.on('connection', function connection(ws,request) {
           }))
         }
       })
+    }
+    
+    if (parsedData.type === "clear") {
+      const roomId = parsedData.roomId;
+
+      console.log("clearing room:", roomId);
+
+      await prismaClient.element.deleteMany({
+        where: { roomId }
+      });
+
+      users.forEach(user => {
+        if (user.rooms.includes(roomId)) {
+          user.ws.send(JSON.stringify({
+            type: "clear",
+            roomId
+          }));
+        }
+      });
     }
     
   });

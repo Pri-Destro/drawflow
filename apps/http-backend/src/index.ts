@@ -203,16 +203,28 @@ app.get("/rooms", middleware, async (req,res) => {
     const userId = req.userId
     try{
         const rooms = await prismaClient.room.findMany({
-            where : {
-                adminId : userId
+            where: {
+                OR: [
+                { adminId: userId },
+                {
+                    participants: {
+                    some: { userId }
+                    }
+                }
+                ]
+            },
+            include: {
+                _count: {
+                select: { participants: true }
+                }
             }
-        })
+        });
 
         const formatted = rooms.map(room => ({
             roomId: room.id,
             name: room.slug,                        
             createdAt: room.createdAt.toISOString(),
-            // collaborators: 1,
+            collaborators: room._count.participants + 1,
             // admin: room.adminId
         }));
 

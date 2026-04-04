@@ -62,6 +62,9 @@ export default function DashboardClient({ user, projects }: DashboardProps) {
   const handleLogout = async () => {
     try {
       // Add logout API call here if needed
+      axios.post("/api/auth/logout",{},
+      {withCredentials : true}
+      )
       router.push('/auth/signin');
     } catch (error) {
       console.error('Logout failed:', error);
