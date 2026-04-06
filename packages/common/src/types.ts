@@ -40,7 +40,7 @@ export type RoomParticipants = {
 
 export type Element = {
     id?: string;
-    type: "rect" | "circle" | "ellipse" | "arrow" | "line";
+    type: "rect" | "circle" | "ellipse" | "arrow" | "line" | "pan";
     x: number;
     y: number;
     width?: number;

@@ -5,6 +5,7 @@ import axios from 'axios'
 import Canvas from "./Canvas"
 import { WS_URL } from "@/config"
 import { useRouter } from "next/navigation"
+import { Loader2, WifiOff } from "lucide-react"
 
 export default function RoomCanvas({roomId } : {roomId : string}){
 
@@ -65,15 +66,39 @@ export default function RoomCanvas({roomId } : {roomId : string}){
         }, [roomId])
         
     if (connectionStatus === 'error') {
-        return <div>Connection failed. Please refresh.</div>
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+                <div className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-lg">
+                    <WifiOff className="mx-auto mb-3 h-8 w-8 text-red-500" />
+                    <h2 className="text-lg font-semibold text-slate-900">Connection failed</h2>
+                    <p className="mt-1 text-sm text-slate-600">Please refresh and try joining the room again.</p>
+                </div>
+            </div>
+        )
     }
     
     if (connectionStatus === 'connecting') {
-        return <div>Connecting to server...</div>
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+                <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-lg">
+                    <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-slate-700" />
+                    <h2 className="text-lg font-semibold text-slate-900">Connecting to room</h2>
+                    <p className="mt-1 text-sm text-slate-600">Setting up your collaborative canvas session...</p>
+                </div>
+            </div>
+        )
     }
     
     if (!socket) {
-        return <div>Initializing connection...</div>
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+                <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-lg">
+                    <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-slate-700" />
+                    <h2 className="text-lg font-semibold text-slate-900">Initializing</h2>
+                    <p className="mt-1 text-sm text-slate-600">Preparing the canvas environment...</p>
+                </div>
+            </div>
+        )
     }
     
     return <div>
